@@ -1,0 +1,49 @@
+
+name: Automated ML Experiments
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  ml-experiments:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate Python syntax
+        run: |
+          python -m compileall -q src
+
+      - name: Run ML experiments
+        run: |
+          python src/main.py
+
+      - name: Check performance regressions
+        run: |
+          python src/check_regression.py
+
+      - name: Upload experiment leaderboard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ml-experiment-results
+          path: results/leaderboard.csv
+          if-no-files-found: warn

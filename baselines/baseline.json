@@ -1,0 +1,11 @@
+{
+    "Logistic Regression (C=1)": 0.9861111111111112,
+    "Logistic Regression (C=0.1)": 0.9793103448275862,
+    "Logistic Regression (C=10)": 0.9722222222222222,
+    "MLP Classifier (hidden_layer_sizes=(100,))": 0.971830985915493,
+    "Random Forest (n_estimators=50)": 0.9655172413793104,
+    "Random Forest (n_estimators=200)": 0.9655172413793104,
+    "Random Forest (n_estimators=100)": 0.9655172413793104,
+    "MLP Classifier (hidden_layer_sizes=(50,))": 0.9645390070921984,
+    "MLP Classifier (hidden_layer_sizes=(50, 50))": 0.9645390070921984
+}

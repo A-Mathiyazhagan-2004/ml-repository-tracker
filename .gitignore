@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+
+# MLflow
+mlflow.db
+mlflow.db-*
+mlruns/
+mlartifacts/
+
+# Saved models
+*.pkl
+*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
