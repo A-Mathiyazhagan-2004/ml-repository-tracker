@@ -41,12 +41,23 @@ def main():
                 model_name
             )
 
+            
             mlflow.sklearn.log_model(
                 sk_model=model,
                 name=safe_model_name,
                 serialization_format="skops",
-                skops_trusted_types=["sklearn.neural_network._stochastic_optimizers.AdamOptimizer"]
+                skops_trusted_types=[
+                    "sklearn.neural_network._stochastic_optimizers.AdamOptimizer",
+                    "sklearn.tree._tree.Tree"
+                ],
+                pip_requirements=[
+                    f"scikit-learn=={__import__('sklearn').__version__}",
+                    f"numpy=={__import__('numpy').__version__}",
+                    "scipy",
+                    "pandas"
+                ]
             )
+
 
             print(f"MLflow recorded: {model_name}")
 
