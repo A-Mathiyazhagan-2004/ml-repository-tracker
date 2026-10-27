@@ -4,6 +4,7 @@ from train import train_models
 from evaluate import evaluate_model
 
 import mlflow
+import argparse
 import pandas as pd
 from pathlib import Path
 import mlflow.sklearn
@@ -12,7 +13,26 @@ import re
 
 def main():
 
-    x_train, x_test, y_train, y_test = load_data()
+    parser = argparse.ArgumentParser(description="Automated ML Experiment Tracker")
+    
+    parser.add_argument(
+        "--data",
+        type=str,
+        required=True,
+        help="Path to the dataset CSV file"
+    )
+    parser.add_argument(
+        "--target",
+        type=str,
+        required=True,
+        help="Name of the target column in the dataset"
+    )
+
+    args = parser.parse_args()
+    data = args.data
+    target_column = args.target
+
+    x_train, x_test, y_train, y_test = load_data(data, target_column)
     trained_models, training_times = train_models(x_train, y_train)
     results = evaluate_model(trained_models, x_test, y_test)
 
