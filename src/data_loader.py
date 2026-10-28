@@ -1,21 +1,30 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_breast_cancer
 
 def load_data(file_path, target_column, test_size=0.2, random_state=42):
+
+    if file_path is None:
+        df = load_breast_cancer(as_frame=True)
+        x = df.data
+        y = df.target
+        
+    else:
+        df = pd.read_csv(file_path)
+        
+        if target_column not in df.columns:
+            raise ValueError(
+                f"Target column '{target_column}' not found in the dataset."
+                f" Available columns: {list(df.columns)}"
+                )
+
+        if df.empty:
+            raise ValueError("The dataset is empty.")
+        if df[target_column].isna().any():
+            raise ValueError(f"Target column '{target_column}' contains missing values.")
     
-    df = pd.read_csv(file_path)
-    
-    if target_column not in df.columns:
-        raise ValueError(
-            f"Target column '{target_column}' not found in the dataset."
-            f" Available columns: {list(df.columns)}")
-    if df.empty:
-        raise ValueError("The dataset is empty.")
-    if df[target_column].isna().any():
-        raise ValueError(f"Target column '{target_column}' contains missing values.")
-    
-    x = df.drop(columns=[target_column])
-    y = df[target_column]
+        x = df.drop(columns=[target_column])
+        y = df[target_column]
 
     if y.nunique() != 2:
         raise ValueError("The target values must be binary to be supported.")

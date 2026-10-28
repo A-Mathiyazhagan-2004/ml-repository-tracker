@@ -18,13 +18,13 @@ def main():
     parser.add_argument(
         "--data",
         type=str,
-        required=True,
+        default=None,
         help="Path to the dataset CSV file"
     )
     parser.add_argument(
         "--target",
         type=str,
-        required=True,
+        default=None,
         help="Name of the target column in the dataset"
     )
 
