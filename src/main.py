@@ -32,6 +32,15 @@ def main():
     data = args.data
     target_column = args.target
 
+    if args.data is None or args.target is None:
+        parser.error("Ensure --data and --target arguments are not provided. Hence using default breast cancer dataset.")
+        dataset_name = "breast_cancer"
+        experiment_name =  "Breast Cancer Classification"
+
+    else:
+        dataset_name = re.sub(r"[^a-zA-Z0-9_-]", "_", Path(data).stem)
+        experiment_name = f"{dataset_name} Classification"
+
     x_train, x_test, y_train, y_test = load_data(data, target_column)
     trained_models, training_times = train_models(x_train, y_train)
     results = evaluate_model(trained_models, x_test, y_test)
@@ -43,11 +52,12 @@ def main():
         )
     )
 
-    mlflow.set_experiment("Breast Cancer Classification")
+    mlflow.set_experiment(experiment_name)
 
     for model_name, model in trained_models.items():
         with mlflow.start_run(run_name=model_name):
             mlflow.set_tag("model_name", model_name)
+            mlflow.set_tag("dataset_name", dataset_name)
             params = model.get_params()
             for param_name, value in params.items():
                 if "__" in param_name:
@@ -74,7 +84,8 @@ def main():
                     f"scikit-learn=={__import__('sklearn').__version__}",
                     f"numpy=={__import__('numpy').__version__}",
                     "scipy",
-                    "pandas"
+                    "pandas",
+                    "skops",
                 ]
             )
 
