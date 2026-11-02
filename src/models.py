@@ -12,9 +12,9 @@ def models():
         model_configs[f"Logistic Regression (C={c})"] = make_pipeline(StandardScaler(), LogisticRegression(C=c, max_iter=1000, random_state=42))
 
     for h in [(50,), (100,), (50, 50)]:
-        model_configs[f"MLP Classifier (hidden_layer_sizes={h})"] = make_pipeline(StandardScaler(), MLPClassifier(hidden_layer_sizes=h, max_iter=1000, random_state=42))
+        model_configs[f"MLP Classifier (hidden_layer_sizes={h})"] = make_pipeline(MLPClassifier(hidden_layer_sizes=h, max_iter=1000, random_state=42))
 
     for n in [50, 100, 200]:
-        model_configs[f"Random Forest (n_estimators={n})"] = make_pipeline(StandardScaler(), RandomForestClassifier(n_estimators=n, random_state=42))
+        model_configs[f"Random Forest (n_estimators={n})"] = make_pipeline(RandomForestClassifier(n_estimators=n, random_state=42))
 
     return model_configs

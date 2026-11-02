@@ -32,14 +32,20 @@ def main():
     data = args.data
     target_column = args.target
 
-    if args.data is None or args.target is None:
-        parser.error("Ensure --data and --target arguments are not provided. Hence using default breast cancer dataset.")
+    if args.data is None and args.target is None:
         dataset_name = "breast_cancer"
-        experiment_name =  "Breast Cancer Classification"
+        experiment_name = "Breast Cancer Classification"
+
+    elif args.data is not None and args.target is not None:
+        dataset_name = re.sub(
+            r"[^a-zA-Z0-9_-]",
+            "_",
+            Path(data).stem
+        )
+        experiment_name = f"{dataset_name} Classification"
 
     else:
-        dataset_name = re.sub(r"[^a-zA-Z0-9_-]", "_", Path(data).stem)
-        experiment_name = f"{dataset_name} Classification"
+        parser.error("--data and --target must be provided together.")
 
     x_train, x_test, y_train, y_test = load_data(data, target_column)
     trained_models, training_times = train_models(x_train, y_train)
@@ -55,14 +61,14 @@ def main():
     mlflow.set_experiment(experiment_name)
 
     for model_name, model in trained_models.items():
+
         with mlflow.start_run(run_name=model_name):
+            
             mlflow.set_tag("model_name", model_name)
             mlflow.set_tag("dataset_name", dataset_name)
-            params = model.get_params()
-            for param_name, value in params.items():
-                if "__" in param_name:
-                    if not hasattr(value, "get_params"):
-                        mlflow.log_param(param_name, str(value))
+            for param_name, value in model.get_params(deep=True).items():
+                if not hasattr(value, "fit") and not hasattr(value, "get_params"):
+                    mlflow.log_param(param_name, str(value))
             mlflow.log_metrics(results[model_name])
             mlflow.log_metric("training_time", training_times[model_name])
             safe_model_name = re.sub(
@@ -113,9 +119,14 @@ def main():
     output_dir = Path("results")
     output_dir.mkdir(exist_ok=True)
 
-    leaderboard.to_csv(
-        output_dir / "leaderboard.csv"
-    )
+    output_path = o
+
+    if args.data is None:
+        output_path = output_dir / "leaderboard.csv"
+    else:
+        output_path = output_dir / f"{dataset_name}_leaderboard.csv"
+
+    leaderboard.to_csv(output_path)
 
     print("\nLeaderboard saved successfully!")
 
