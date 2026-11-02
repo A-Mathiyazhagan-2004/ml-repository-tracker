@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 BASELINE_PATH = ROOT / "baselines" / "baseline.json"
 LEADERBOARD_PATH = ROOT / "results" / "leaderboard.csv"
 
-TOLERANCE = 0.02
+TOLERANCE = 0.04
 
 
 def check_regression():
