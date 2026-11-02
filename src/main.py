@@ -119,8 +119,6 @@ def main():
     output_dir = Path("results")
     output_dir.mkdir(exist_ok=True)
 
-    output_path = o
-
     if args.data is None:
         output_path = output_dir / "leaderboard.csv"
     else:
