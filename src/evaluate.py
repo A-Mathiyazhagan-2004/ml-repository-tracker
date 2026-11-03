@@ -6,7 +6,7 @@ from sklearn.metrics import (
     recall_score
 )
 
-def evaluate_model(trained_models, x_test, y_test):
+def evaluate_model(trained_models, x_test, y_test, training_times):
 
     results = {}
 
@@ -18,7 +18,8 @@ def evaluate_model(trained_models, x_test, y_test):
             "accuracy": accuracy_score(y_test, y_pred),
             "f1": f1_score(y_test, y_pred),
             "precision": precision_score(y_test, y_pred, zero_division=0),
-            "recall": recall_score(y_test, y_pred, zero_division=0)
+            "recall": recall_score(y_test, y_pred, zero_division=0),
+            "training time": training_times[model_name]
         }
 
         results[model_name] = metrics

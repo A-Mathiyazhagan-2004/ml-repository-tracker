@@ -49,7 +49,7 @@ def main():
 
     x_train, x_test, y_train, y_test = load_data(data, target_column)
     trained_models, training_times = train_models(x_train, y_train)
-    results = evaluate_model(trained_models, x_test, y_test)
+    results = evaluate_model(trained_models, x_test, y_test, training_times)
 
     mlflow.set_tracking_uri(
         os.environ.get(
@@ -70,7 +70,6 @@ def main():
                 if not hasattr(value, "fit") and not hasattr(value, "get_params"):
                     mlflow.log_param(param_name, str(value))
             mlflow.log_metrics(results[model_name])
-            mlflow.log_metric("training_time", training_times[model_name])
             safe_model_name = re.sub(
                 r"[^a-zA-Z0-9_-]",
                 "_",
@@ -98,24 +97,62 @@ def main():
 
             print(f"MLflow recorded: {model_name}")
 
+    
     leaderboard = pd.DataFrame.from_dict(
         results, orient="index"
     )
 
     leaderboard.index.name = "Model"
 
+    leaderboard["accuracy_rank"] = leaderboard["accuracy"].rank(
+        ascending=False, method="average"
+    )
+
+    leaderboard["precision_rank"] = leaderboard["precision"].rank(
+        ascending=False, method="average"
+    )
+
+    leaderboard["recall_rank"] = leaderboard["recall"].rank(
+    ascending=False, method="average"
+    )
+
+    leaderboard["f1_rank"] = leaderboard["f1"].rank(
+        ascending=False, method="average"
+    )
+
+
+    leaderboard["training_time_rank"] = leaderboard["training time"].rank(
+        ascending=True, method="average"
+    )
+
+    rank_columns = [
+        "accuracy_rank",
+        "precision_rank",
+        "recall_rank",
+        "f1_rank",
+        "training_time_rank"
+    ]
+
+    leaderboard["total_rank"] = leaderboard[rank_columns].sum(axis=1)
+
+    leaderboard["overall_rank"] = leaderboard["total_rank"].rank(
+        ascending=True, method="min"
+    )
+
     leaderboard = leaderboard.sort_values(
-        by="f1", ascending=False
+        by=["total_rank", "f1"],
+        ascending=[True, False]
     )
 
-    leaderboard.insert(
-        0, "Rank", range(1, len(leaderboard) + 1)
-    )
-
-    print("\nMODEL LEADERBOARD")
+    print("\nMULTI-METRIC MODEL LEADERBOARD")
     print(leaderboard.to_string())
 
-    # Step 7: Save leaderboard
+    best_model = leaderboard.index[0]
+
+    print("\nBEST OVERALL MODEL")
+    print(f"Model: {best_model}")
+    print(f"Total Rank: {leaderboard.iloc[0]['total_rank']:.2f}")
+
     output_dir = Path("results")
     output_dir.mkdir(exist_ok=True)
 
@@ -126,8 +163,7 @@ def main():
 
     leaderboard.to_csv(output_path)
 
-    print("\nLeaderboard saved successfully!")
-
+    print(f"\nLeaderboard saved: {output_path}")
 
 if __name__ == "__main__":
     main()
